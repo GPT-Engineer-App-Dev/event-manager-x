@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Container, VStack, Heading, Input, Button, FormControl, FormLabel, Textarea } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import { useAddEvent } from "../integrations/supabase/index.js";
 
 const CreateEvent = () => {
   const [title, setTitle] = useState("");
@@ -8,13 +9,17 @@ const CreateEvent = () => {
   const [date, setDate] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const addEvent = useAddEvent();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newEvent = { title, description, date };
-    // For now, we'll just log the event to the console
-    console.log("Event Created:", newEvent);
-    // Navigate back to the home page
-    navigate("/");
+    const newEvent = { name: title, description, date };
+    try {
+      await addEvent.mutateAsync(newEvent);
+      navigate("/");
+    } catch (error) {
+      console.error("Error creating event:", error);
+    }
   };
 
   return (
